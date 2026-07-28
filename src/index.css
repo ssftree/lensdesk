@@ -1,0 +1,48 @@
+:root {
+  --window-bg: #f6f4f0;
+  --surface: #ffffff;
+  --main: #fbfaf7;
+  --sidebar: #f3f1ec;
+  --border: #e3dfd8;
+  --hover: #f0eee8;
+  --accent: #155d43;
+  --accent-soft: #dce8e1;
+  --text: #272522;
+  --secondary: #6f6a62;
+  --muted: #9a948b;
+  color: var(--text);
+  background: var(--window-bg);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial,
+    sans-serif;
+  font-synthesis: none;
+  line-height: 1.35;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 1024px;
+  margin: 0;
+}
+
+button,
+input {
+  letter-spacing: 0;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgba(21, 93, 67, 0.38);
+  outline-offset: 2px;
+}
+
+::selection {
+  color: var(--text);
+  background: #f3dfa6;
+}
