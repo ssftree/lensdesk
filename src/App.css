@@ -433,6 +433,26 @@ button {
   background: var(--hover);
 }
 
+.primary-button {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  background: var(--accent);
+  font-size: 12px;
+  font-weight: 620;
+  cursor: pointer;
+}
+
+.primary-button:hover {
+  background: color-mix(in srgb, var(--accent) 88%, #000 12%);
+}
+
 .project-brief {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -471,6 +491,112 @@ button {
   min-height: 0;
   overflow: auto;
   padding: 0 14px;
+}
+
+.capture-panel {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0 2px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 34px rgba(39, 37, 34, 0.09);
+}
+
+.capture-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.capture-head h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 690;
+}
+
+.type-segments {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--main);
+}
+
+.type-segments button {
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--secondary);
+  background: transparent;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.type-segments button.active {
+  color: var(--accent);
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(39, 37, 34, 0.08);
+  font-weight: 650;
+}
+
+.capture-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.capture-grid label,
+.capture-field {
+  display: grid;
+  gap: 5px;
+}
+
+.capture-grid span,
+.capture-field span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.capture-panel input,
+.capture-panel textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+  font-size: 13px;
+}
+
+.capture-panel input {
+  height: 34px;
+  padding: 0 10px;
+}
+
+.capture-panel textarea {
+  min-height: 92px;
+  resize: vertical;
+  padding: 9px 10px;
+  line-height: 1.45;
+}
+
+.capture-panel input::placeholder,
+.capture-panel textarea::placeholder {
+  color: var(--muted);
+}
+
+.capture-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .evidence-card {

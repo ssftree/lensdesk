@@ -1,4 +1,4 @@
-import { type CSSProperties, useMemo, useState } from 'react'
+import { type CSSProperties, type FormEvent, useMemo, useState } from 'react'
 import {
   Archive,
   AtSign,
@@ -25,6 +25,7 @@ import {
   Tag,
   Target,
   Users,
+  X,
 } from 'lucide-react'
 import './App.css'
 
@@ -54,7 +55,7 @@ type Project = {
 type Evidence = {
   id: string
   projectId: string
-  type: 'link' | 'quote' | 'screenshot' | 'note'
+  type: EvidenceType
   platform: string
   source: string
   title: string
@@ -62,6 +63,17 @@ type Evidence = {
   tags: string[]
   excerpt: string
   image?: string
+}
+
+type EvidenceType = 'link' | 'quote' | 'screenshot' | 'note'
+
+type ClipForm = {
+  type: EvidenceType
+  platform: string
+  source: string
+  title: string
+  excerpt: string
+  tags: string
 }
 
 type InsightTab = 'themes' | 'tensions' | 'memo'
@@ -202,7 +214,7 @@ const tags = [
   ['labor', 7, '#a72a22'],
 ] as const
 
-const evidence: Evidence[] = [
+const seedEvidence: Evidence[] = [
   {
     id: 'e1',
     projectId: 'clean-girl',
@@ -365,6 +377,22 @@ const evidence: Evidence[] = [
   },
 ]
 
+const emptyClipForm: ClipForm = {
+  type: 'link',
+  platform: '',
+  source: '',
+  title: '',
+  excerpt: '',
+  tags: '',
+}
+
+const evidenceTypeOptions: Array<{ type: EvidenceType; label: string }> = [
+  { type: 'link', label: 'Link' },
+  { type: 'quote', label: 'Quote' },
+  { type: 'screenshot', label: 'Screenshot' },
+  { type: 'note', label: 'Note' },
+]
+
 const projectInsights: Record<string, InsightContent> = {
   'clean-girl': {
     themes: [
@@ -525,9 +553,12 @@ const projectInsights: Record<string, InsightContent> = {
 function App() {
   const [selectedAccountId, setSelectedAccountId] = useState(accounts[0].id)
   const [selectedProjectId, setSelectedProjectId] = useState(projects[0].id)
-  const [selectedEvidenceId, setSelectedEvidenceId] = useState(evidence[0].id)
+  const [evidenceItems, setEvidenceItems] = useState(seedEvidence)
+  const [selectedEvidenceId, setSelectedEvidenceId] = useState(seedEvidence[0].id)
   const [activeTab, setActiveTab] = useState<InsightTab>('themes')
   const [query, setQuery] = useState('')
+  const [isAddingClip, setIsAddingClip] = useState(false)
+  const [clipForm, setClipForm] = useState<ClipForm>(emptyClipForm)
 
   const selectedAccount = accounts.find((account) => account.id === selectedAccountId) ?? accounts[0]
   const accountProjects = projects.filter((project) => project.accountId === selectedAccount.id)
@@ -539,7 +570,7 @@ function App() {
   const visibleEvidence = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
 
-    return evidence.filter((item) => {
+    return evidenceItems.filter((item) => {
       if (item.projectId !== selectedProject?.id) return false
       if (!normalizedQuery) return true
 
@@ -548,7 +579,7 @@ function App() {
         .toLowerCase()
         .includes(normalizedQuery)
     })
-  }, [query, selectedProject?.id])
+  }, [evidenceItems, query, selectedProject?.id])
 
   const selectedEvidence =
     visibleEvidence.find((item) => item.id === selectedEvidenceId) ?? visibleEvidence[0]
@@ -560,15 +591,53 @@ function App() {
     if (!firstProject) return
 
     setSelectedProjectId(firstProject.id)
-    const firstEvidence = evidence.find((item) => item.projectId === firstProject.id)
-    if (firstEvidence) setSelectedEvidenceId(firstEvidence.id)
+    const firstEvidence = evidenceItems.find((item) => item.projectId === firstProject.id)
+    setSelectedEvidenceId(firstEvidence?.id ?? '')
   }
 
   const handleSelectProject = (projectId: string) => {
     setSelectedProjectId(projectId)
     setQuery('')
-    const firstEvidence = evidence.find((item) => item.projectId === projectId)
-    if (firstEvidence) setSelectedEvidenceId(firstEvidence.id)
+    const firstEvidence = evidenceItems.find((item) => item.projectId === projectId)
+    setSelectedEvidenceId(firstEvidence?.id ?? '')
+  }
+
+  const handleClipFormChange = (field: keyof ClipForm, value: string) => {
+    setClipForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const handleAddClip = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!selectedProject || !clipForm.title.trim() || !clipForm.excerpt.trim()) return
+
+    const newEvidence: Evidence = {
+      id: `clip-${Date.now()}`,
+      projectId: selectedProject.id,
+      type: clipForm.type,
+      platform: clipForm.platform.trim() || 'Manual',
+      source: clipForm.source.trim() || 'manual clip',
+      title: clipForm.title.trim(),
+      date: new Intl.DateTimeFormat('en', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      }).format(new Date()),
+      tags: clipForm.tags
+        .split(',')
+        .map((tagName) => tagName.trim())
+        .filter(Boolean),
+      excerpt: clipForm.excerpt.trim(),
+      image:
+        clipForm.type === 'screenshot'
+          ? 'linear-gradient(135deg, #e8e2d7 0%, #fbfaf7 38%, #ccd9d3 39%, #d9cdbd 66%, #f6f0e4 67%)'
+          : undefined,
+    }
+
+    setEvidenceItems((current) => [newEvidence, ...current])
+    setSelectedEvidenceId(newEvidence.id)
+    setQuery('')
+    setClipForm(emptyClipForm)
+    setIsAddingClip(false)
   }
 
   return (
@@ -714,6 +783,10 @@ function App() {
                 <button className="pill-button" type="button">
                   All Evidence <ChevronDown size={14} />
                 </button>
+                <button className="primary-button" onClick={() => setIsAddingClip(true)} type="button">
+                  <Plus size={14} />
+                  Add Clip
+                </button>
                 <button className="icon-button bordered" type="button" aria-label="Filter evidence">
                   <Filter size={15} />
                 </button>
@@ -734,6 +807,107 @@ function App() {
             )}
 
             <div className="evidence-list">
+              {isAddingClip && (
+                <form className="capture-panel" onSubmit={handleAddClip}>
+                  <div className="capture-head">
+                    <div>
+                      <span className="brief-label">Capture to {selectedProject?.name}</span>
+                      <h3>Add evidence clip</h3>
+                    </div>
+                    <button
+                      className="icon-button"
+                      onClick={() => {
+                        setIsAddingClip(false)
+                        setClipForm(emptyClipForm)
+                      }}
+                      type="button"
+                      aria-label="Close add clip"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <div className="type-segments" aria-label="Evidence type">
+                    {evidenceTypeOptions.map((option) => (
+                      <button
+                        className={clipForm.type === option.type ? 'active' : ''}
+                        key={option.type}
+                        onClick={() => setClipForm((current) => ({ ...current, type: option.type }))}
+                        type="button"
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="capture-grid">
+                    <label>
+                      <span>Platform</span>
+                      <input
+                        onChange={(event) => handleClipFormChange('platform', event.target.value)}
+                        placeholder="TikTok, Instagram, X..."
+                        value={clipForm.platform}
+                      />
+                    </label>
+                    <label>
+                      <span>Source</span>
+                      <input
+                        onChange={(event) => handleClipFormChange('source', event.target.value)}
+                        placeholder="@handle or URL"
+                        value={clipForm.source}
+                      />
+                    </label>
+                  </div>
+
+                  <label className="capture-field">
+                    <span>Title</span>
+                    <input
+                      onChange={(event) => handleClipFormChange('title', event.target.value)}
+                      placeholder="What should this clip be called?"
+                      required
+                      value={clipForm.title}
+                    />
+                  </label>
+
+                  <label className="capture-field">
+                    <span>Excerpt or note</span>
+                    <textarea
+                      onChange={(event) => handleClipFormChange('excerpt', event.target.value)}
+                      placeholder="Paste the quote, describe the screenshot, or write the observation."
+                      required
+                      rows={4}
+                      value={clipForm.excerpt}
+                    />
+                  </label>
+
+                  <label className="capture-field">
+                    <span>Tags</span>
+                    <input
+                      onChange={(event) => handleClipFormChange('tags', event.target.value)}
+                      placeholder="aesthetic, labor, community"
+                      value={clipForm.tags}
+                    />
+                  </label>
+
+                  <div className="capture-actions">
+                    <button
+                      className="pill-button"
+                      onClick={() => {
+                        setIsAddingClip(false)
+                        setClipForm(emptyClipForm)
+                      }}
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                    <button className="primary-button" type="submit">
+                      <Plus size={14} />
+                      Save Clip
+                    </button>
+                  </div>
+                </form>
+              )}
+
               {visibleEvidence.length > 0 ? (
                 visibleEvidence.map((item) => (
                   <button
