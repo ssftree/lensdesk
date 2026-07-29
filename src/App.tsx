@@ -1,4 +1,4 @@
-import { type CSSProperties, type FormEvent, useMemo, useState } from 'react'
+import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from 'react'
 import {
   Archive,
   AtSign,
@@ -82,6 +82,12 @@ type InsightContent = {
   themes: Array<[string, number]>
   tensions: Array<[string, number]>
   memo: Array<[string, string]>
+}
+
+type WorkspaceState = {
+  selectedAccountId: string
+  selectedProjectId: string
+  selectedEvidenceId: string
 }
 
 const accounts: Account[] = [
@@ -393,6 +399,84 @@ const evidenceTypeOptions: Array<{ type: EvidenceType; label: string }> = [
   { type: 'note', label: 'Note' },
 ]
 
+const evidenceStorageKey = 'lensdesk:evidence:v1'
+const workspaceStorageKey = 'lensdesk:workspace:v1'
+
+const evidenceTypes: EvidenceType[] = ['link', 'quote', 'screenshot', 'note']
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null
+
+const isEvidence = (value: unknown): value is Evidence => {
+  if (!isRecord(value)) return false
+
+  return (
+    typeof value.id === 'string' &&
+    typeof value.projectId === 'string' &&
+    evidenceTypes.includes(value.type as EvidenceType) &&
+    typeof value.platform === 'string' &&
+    typeof value.source === 'string' &&
+    typeof value.title === 'string' &&
+    typeof value.date === 'string' &&
+    Array.isArray(value.tags) &&
+    value.tags.every((tagName) => typeof tagName === 'string') &&
+    typeof value.excerpt === 'string' &&
+    (value.image === undefined || typeof value.image === 'string')
+  )
+}
+
+const loadEvidenceItems = () => {
+  if (typeof window === 'undefined') return seedEvidence
+
+  try {
+    const storedEvidence = window.localStorage.getItem(evidenceStorageKey)
+    if (!storedEvidence) return seedEvidence
+
+    const parsed: unknown = JSON.parse(storedEvidence)
+    return Array.isArray(parsed) && parsed.every(isEvidence) ? parsed : seedEvidence
+  } catch {
+    return seedEvidence
+  }
+}
+
+const isWorkspaceState = (value: unknown): value is WorkspaceState => {
+  if (!isRecord(value)) return false
+
+  return (
+    typeof value.selectedAccountId === 'string' &&
+    typeof value.selectedProjectId === 'string' &&
+    typeof value.selectedEvidenceId === 'string'
+  )
+}
+
+const loadWorkspaceState = (): WorkspaceState => {
+  const fallback = {
+    selectedAccountId: accounts[0].id,
+    selectedProjectId: projects[0].id,
+    selectedEvidenceId: seedEvidence[0].id,
+  }
+
+  if (typeof window === 'undefined') return fallback
+
+  try {
+    const storedWorkspace = window.localStorage.getItem(workspaceStorageKey)
+    if (!storedWorkspace) return fallback
+
+    const parsed: unknown = JSON.parse(storedWorkspace)
+    if (!isWorkspaceState(parsed)) return fallback
+
+    const accountExists = accounts.some((account) => account.id === parsed.selectedAccountId)
+    const projectBelongsToAccount = projects.some(
+      (project) =>
+        project.id === parsed.selectedProjectId && project.accountId === parsed.selectedAccountId,
+    )
+
+    return accountExists && projectBelongsToAccount ? parsed : fallback
+  } catch {
+    return fallback
+  }
+}
+
 const projectInsights: Record<string, InsightContent> = {
   'clean-girl': {
     themes: [
@@ -551,14 +635,32 @@ const projectInsights: Record<string, InsightContent> = {
 }
 
 function App() {
-  const [selectedAccountId, setSelectedAccountId] = useState(accounts[0].id)
-  const [selectedProjectId, setSelectedProjectId] = useState(projects[0].id)
-  const [evidenceItems, setEvidenceItems] = useState(seedEvidence)
-  const [selectedEvidenceId, setSelectedEvidenceId] = useState(seedEvidence[0].id)
+  const initialWorkspaceState = useMemo(loadWorkspaceState, [])
+  const [selectedAccountId, setSelectedAccountId] = useState(initialWorkspaceState.selectedAccountId)
+  const [selectedProjectId, setSelectedProjectId] = useState(initialWorkspaceState.selectedProjectId)
+  const [evidenceItems, setEvidenceItems] = useState(loadEvidenceItems)
+  const [selectedEvidenceId, setSelectedEvidenceId] = useState(initialWorkspaceState.selectedEvidenceId)
   const [activeTab, setActiveTab] = useState<InsightTab>('themes')
   const [query, setQuery] = useState('')
   const [isAddingClip, setIsAddingClip] = useState(false)
   const [clipForm, setClipForm] = useState<ClipForm>(emptyClipForm)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    window.localStorage.setItem(evidenceStorageKey, JSON.stringify(evidenceItems))
+  }, [evidenceItems])
+
+  useEffect(() => {
+    const nextWorkspaceState = {
+      selectedAccountId,
+      selectedProjectId,
+      selectedEvidenceId,
+    }
+
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(workspaceStorageKey, JSON.stringify(nextWorkspaceState))
+  }, [selectedAccountId, selectedEvidenceId, selectedProjectId])
 
   const selectedAccount = accounts.find((account) => account.id === selectedAccountId) ?? accounts[0]
   const accountProjects = projects.filter((project) => project.accountId === selectedAccount.id)
