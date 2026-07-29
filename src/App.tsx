@@ -46,6 +46,9 @@ type Project = {
   name: string
   count: number
   accent: string
+  question: string
+  decision: string
+  nextMove: string
 }
 
 type Evidence = {
@@ -62,6 +65,12 @@ type Evidence = {
 }
 
 type InsightTab = 'themes' | 'tensions' | 'memo'
+
+type InsightContent = {
+  themes: Array<[string, number]>
+  tensions: Array<[string, number]>
+  memo: Array<[string, string]>
+}
 
 const accounts: Account[] = [
   {
@@ -100,14 +109,86 @@ const accounts: Account[] = [
 ]
 
 const projects: Project[] = [
-  { id: 'clean-girl', accountId: 'fem-signal', name: 'Clean Girl Aesthetic', count: 42, accent: '#155d43' },
-  { id: 'tradwife', accountId: 'fem-signal', name: 'Tradwife Discourse', count: 31, accent: '#8b3a3a' },
-  { id: 'body-image', accountId: 'fem-signal', name: 'Body Image Shifts', count: 21, accent: '#6a7043' },
-  { id: 'wellness', accountId: 'market-notes', name: 'Wellness Market Scan', count: 18, accent: '#9a7a2f' },
-  { id: 'beauty-category', accountId: 'market-notes', name: 'Beauty Category Codes', count: 25, accent: '#7a4d16' },
-  { id: 'creator', accountId: 'market-notes', name: 'Creator Economy Women', count: 15, accent: '#557985' },
-  { id: 'burnout', accountId: 'soft-work', name: 'Burnout Language', count: 22, accent: '#557985' },
-  { id: 'work-care', accountId: 'soft-work', name: 'Work & Care Narratives', count: 19, accent: '#6a7043' },
+  {
+    id: 'clean-girl',
+    accountId: 'fem-signal',
+    name: 'Clean Girl Aesthetic',
+    count: 42,
+    accent: '#155d43',
+    question: 'What labor gets hidden when "clean" becomes a beauty ideal?',
+    decision: 'Build a critique around effort, class codes, and the morality of visible discipline.',
+    nextMove: 'Draft a carousel from the strongest routine clips and one quote about low maintenance.',
+  },
+  {
+    id: 'tradwife',
+    accountId: 'fem-signal',
+    name: 'Tradwife Discourse',
+    count: 31,
+    accent: '#8b3a3a',
+    question: 'Why does domestic nostalgia feel persuasive inside unstable platform culture?',
+    decision: 'Treat the trend as an emotional escape narrative, not only a political identity.',
+    nextMove: 'Compare homemaking visuals with comments about burnout, security, and public performance.',
+  },
+  {
+    id: 'body-image',
+    accountId: 'fem-signal',
+    name: 'Body Image Shifts',
+    count: 21,
+    accent: '#6a7043',
+    question: 'How are body ideals being renamed as health, longevity, or discipline?',
+    decision: 'Track language that moves from beauty judgment into moral self-management.',
+    nextMove: 'Collect before-and-after captions and note which words make judgment sound neutral.',
+  },
+  {
+    id: 'wellness',
+    accountId: 'market-notes',
+    name: 'Wellness Market Scan',
+    count: 18,
+    accent: '#9a7a2f',
+    question: 'Which wellness signals are becoming default purchase expectations?',
+    decision: 'Use shelf rituals and packaging codes to identify credible positioning spaces.',
+    nextMove: 'Cluster brands by proof cues: clinical, natural, luxury, community, and daily ritual.',
+  },
+  {
+    id: 'beauty-category',
+    accountId: 'market-notes',
+    name: 'Beauty Category Codes',
+    count: 25,
+    accent: '#7a4d16',
+    question: 'What visual codes make a beauty product feel premium, useful, or culturally current?',
+    decision: 'Separate enduring category codes from fast-moving aesthetic templates.',
+    nextMove: 'Map product shots against caption language to find repeated promise structures.',
+  },
+  {
+    id: 'creator',
+    accountId: 'market-notes',
+    name: 'Creator Economy Women',
+    count: 15,
+    accent: '#557985',
+    question: 'Where are women creators turning exhaustion into monetizable expertise?',
+    decision: 'Look for the shift from personal story to system, template, course, or paid community.',
+    nextMove: 'Save offer pages and announcement posts from creators with audience trust signals.',
+  },
+  {
+    id: 'burnout',
+    accountId: 'soft-work',
+    name: 'Burnout Language',
+    count: 22,
+    accent: '#557985',
+    question: 'What words help people describe depletion without turning it into personal failure?',
+    decision: 'Center language that gives people room, not optimization pressure.',
+    nextMove: 'Turn the best comments into a glossary of gentler work-language alternatives.',
+  },
+  {
+    id: 'work-care',
+    accountId: 'soft-work',
+    name: 'Work & Care Narratives',
+    count: 19,
+    accent: '#6a7043',
+    question: 'How do people explain the collision between ambition, care, and daily maintenance?',
+    decision: 'Frame care as infrastructure, not an interruption to real work.',
+    nextMove: 'Collect posts where users name the invisible admin behind being functional.',
+  },
 ]
 
 const tags = [
@@ -197,6 +278,30 @@ const evidence: Evidence[] = [
       'The fantasy is less about housework itself and more about escaping fragmented public performance.',
   },
   {
+    id: 'e9',
+    projectId: 'tradwife',
+    type: 'quote',
+    platform: 'TikTok',
+    source: '@hearthnotes',
+    title: 'I just want a slower life',
+    date: 'May 8, 2025',
+    tags: ['nostalgia', 'gender', 'security'],
+    excerpt:
+      'The comments keep returning to rest, money anxiety, and wanting one coherent role instead of six.',
+  },
+  {
+    id: 'e10',
+    projectId: 'body-image',
+    type: 'link',
+    platform: 'Instagram',
+    source: '@longevityedit',
+    title: 'Strong not skinny, but still surveilled',
+    date: 'May 7, 2025',
+    tags: ['body image', 'health', 'discipline'],
+    excerpt:
+      'Fitness captions trade thinness language for strength language while preserving measurement, tracking, and comparison.',
+  },
+  {
     id: 'e7',
     projectId: 'wellness',
     type: 'link',
@@ -207,6 +312,32 @@ const evidence: Evidence[] = [
     tags: ['consumer insight', 'wellness', 'brand codes'],
     excerpt:
       'Wellness products are staged as proof of intentionality: glass packaging, routine cards, muted labels.',
+  },
+  {
+    id: 'e11',
+    projectId: 'beauty-category',
+    type: 'screenshot',
+    platform: 'Instagram',
+    source: 'screenshot',
+    title: 'Serum dropper product grid',
+    date: 'May 7, 2025',
+    tags: ['brand codes', 'beauty', 'premium'],
+    excerpt:
+      'Visual formula repeats: macro texture, pale background, clinical claims, one warm human detail.',
+    image:
+      'linear-gradient(135deg, #efece5 0%, #f9f8f4 38%, #b9c9bd 39%, #e5dbca 63%, #f7efe7 64%)',
+  },
+  {
+    id: 'e12',
+    projectId: 'creator',
+    type: 'link',
+    platform: 'Substack',
+    source: 'newsletter',
+    title: 'From burnout story to paid operating system',
+    date: 'May 6, 2025',
+    tags: ['creator economy', 'offer', 'trust'],
+    excerpt:
+      'The strongest creators package lived experience as repeatable method: worksheets, office hours, and a named framework.',
   },
   {
     id: 'e8',
@@ -220,28 +351,175 @@ const evidence: Evidence[] = [
     excerpt:
       'I do not want balance. I want room to be a person before I am productive.',
   },
+  {
+    id: 'e13',
+    projectId: 'work-care',
+    type: 'note',
+    platform: 'Field note',
+    source: 'manual note',
+    title: 'Care as hidden project management',
+    date: 'May 5, 2025',
+    tags: ['care', 'work identity', 'daily systems'],
+    excerpt:
+      'Many posts frame care as spontaneous kindness, while comments reveal logistics, remembering, scheduling, and recovery time.',
+  },
 ]
 
-const tabContent = {
-  themes: [
-    ['Curated simplicity as identity', 24],
-    ['Wellness as aesthetic capital', 19],
-    ['Discipline and daily ritual', 17],
-    ['Soft femininity and control', 14],
-    ['Community and belonging', 12],
-  ],
-  tensions: [
-    ['Effortless look vs. constant effort', 26],
-    ['Empowerment vs. conformity', 18],
-    ['Self-care vs. self-surveillance', 16],
-    ['Accessibility vs. aspirational ideals', 13],
-  ],
-  memo: [
-    ['For this account', 'Frame the trend as invisible labor disguised as ease.'],
-    ['Post angle', 'What looks natural is often a highly managed performance.'],
-    ['Source to cite', 'Routine videos, shelf imagery, low-maintenance critique posts.'],
-    ['Open question', 'When does clean become moral language?'],
-  ],
+const projectInsights: Record<string, InsightContent> = {
+  'clean-girl': {
+    themes: [
+      ['Curated simplicity as identity', 24],
+      ['Wellness as aesthetic capital', 19],
+      ['Discipline and daily ritual', 17],
+      ['Soft femininity and control', 14],
+      ['Community and belonging', 12],
+    ],
+    tensions: [
+      ['Effortless look vs. constant effort', 26],
+      ['Empowerment vs. conformity', 18],
+      ['Self-care vs. self-surveillance', 16],
+      ['Accessibility vs. aspirational ideals', 13],
+    ],
+    memo: [
+      ['For this account', 'Frame the trend as invisible labor disguised as ease.'],
+      ['Post angle', 'What looks natural is often a highly managed performance.'],
+      ['Source to cite', 'Routine videos, shelf imagery, low-maintenance critique posts.'],
+      ['Open question', 'When does clean become moral language?'],
+    ],
+  },
+  tradwife: {
+    themes: [
+      ['Domesticity as relief fantasy', 18],
+      ['Security through tradition', 14],
+      ['Home as controlled stage', 12],
+      ['Anti-hustle femininity', 9],
+    ],
+    tensions: [
+      ['Rest desire vs. gender restriction', 19],
+      ['Choice language vs. social pressure', 16],
+      ['Aesthetic warmth vs. political edge', 12],
+    ],
+    memo: [
+      ['For this account', 'Read the trend through exhaustion, not only ideology.'],
+      ['Post angle', 'The fantasy is not housework. The fantasy is one stable role.'],
+      ['Source to cite', 'Slow-life captions and comment sections about money anxiety.'],
+      ['Open question', 'Who gets to call dependence peaceful?'],
+    ],
+  },
+  'body-image': {
+    themes: [
+      ['Health language as beauty proxy', 16],
+      ['Measurement as moral comfort', 13],
+      ['Strength aesthetics', 12],
+      ['Before-and-after confession', 8],
+    ],
+    tensions: [
+      ['Liberation language vs. tracking culture', 18],
+      ['Body neutrality vs. optimization', 14],
+      ['Wellness proof vs. private anxiety', 11],
+    ],
+    memo: [
+      ['For this account', 'Track the words that make body judgment sound scientific.'],
+      ['Post angle', 'A new ideal can arrive wearing the language of health.'],
+      ['Source to cite', 'Fitness captions, longevity content, comment debates.'],
+      ['Open question', 'What counts as care when measurement becomes constant?'],
+    ],
+  },
+  wellness: {
+    themes: [
+      ['Ritual as purchase justification', 15],
+      ['Clinical-natural hybrid codes', 12],
+      ['Shelf identity', 10],
+      ['Daily proof of intention', 8],
+    ],
+    tensions: [
+      ['Evidence vs. vibe', 17],
+      ['Accessibility vs. premium restraint', 12],
+      ['Routine utility vs. aesthetic staging', 10],
+    ],
+    memo: [
+      ['For this account', 'Separate durable credibility cues from decorative wellness language.'],
+      ['Post angle', 'The modern wellness shelf sells control before it sells ingredients.'],
+      ['Source to cite', 'Packaging grids, morning routine posts, supplement comments.'],
+      ['Open question', 'Which proof cues are now table stakes?'],
+    ],
+  },
+  'beauty-category': {
+    themes: [
+      ['Clinical softness', 14],
+      ['Texture as proof', 12],
+      ['Quiet premium cues', 11],
+      ['Promise compression', 9],
+    ],
+    tensions: [
+      ['Luxury restraint vs. algorithmic sameness', 15],
+      ['Science claims vs. sensory desire', 13],
+      ['Minimal packaging vs. emotional warmth', 8],
+    ],
+    memo: [
+      ['For this account', 'Watch how beauty brands make utility feel intimate.'],
+      ['Post angle', 'Premium beauty now looks less decorated and more resolved.'],
+      ['Source to cite', 'Product grids, ingredient posts, founder captions.'],
+      ['Open question', 'When does restraint become generic?'],
+    ],
+  },
+  creator: {
+    themes: [
+      ['Lived experience as method', 12],
+      ['Burnout to framework', 10],
+      ['Trust before scale', 8],
+      ['Community as product wrapper', 7],
+    ],
+    tensions: [
+      ['Vulnerability vs. monetization', 14],
+      ['Personal story vs. repeatable system', 12],
+      ['Care language vs. sales urgency', 9],
+    ],
+    memo: [
+      ['For this account', 'Identify how creators convert biography into operating systems.'],
+      ['Post angle', 'The new expert product starts as a survival story.'],
+      ['Source to cite', 'Offer pages, newsletter launches, audience testimonials.'],
+      ['Open question', 'What makes monetized vulnerability still feel ethical?'],
+    ],
+  },
+  burnout: {
+    themes: [
+      ['Room before productivity', 17],
+      ['Gentler ambition', 13],
+      ['Anti-balance language', 11],
+      ['Permission to pause', 9],
+    ],
+    tensions: [
+      ['Rest as need vs. rest as content', 14],
+      ['Self-trust vs. optimization advice', 12],
+      ['Softness vs. avoidance', 8],
+    ],
+    memo: [
+      ['For this account', 'Use language that validates depletion without selling a fix.'],
+      ['Post angle', 'Maybe balance is too small a word for wanting room.'],
+      ['Source to cite', 'Threads quotes, journal-style captions, comment confessions.'],
+      ['Open question', 'What language helps without aestheticizing exhaustion?'],
+    ],
+  },
+  'work-care': {
+    themes: [
+      ['Care as infrastructure', 13],
+      ['Invisible scheduling labor', 11],
+      ['Ambition with maintenance', 9],
+      ['Family admin as cognitive load', 8],
+    ],
+    tensions: [
+      ['Love language vs. labor language', 13],
+      ['Ambition vs. availability', 11],
+      ['Private care vs. public productivity', 9],
+    ],
+    memo: [
+      ['For this account', 'Make the hidden admin of care visible without making care joyless.'],
+      ['Post angle', 'Care is not the opposite of work. It is work with fewer dashboards.'],
+      ['Source to cite', 'Field notes, comments about planning, weekly routine posts.'],
+      ['Open question', 'What would care look like if it had real project status?'],
+    ],
+  },
 }
 
 function App() {
@@ -255,6 +533,8 @@ function App() {
   const accountProjects = projects.filter((project) => project.accountId === selectedAccount.id)
   const selectedProject =
     accountProjects.find((project) => project.id === selectedProjectId) ?? accountProjects[0]
+  const selectedInsights =
+    (selectedProject ? projectInsights[selectedProject.id] : undefined) ?? projectInsights['clean-girl']
 
   const visibleEvidence = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
@@ -275,6 +555,7 @@ function App() {
 
   const handleSelectAccount = (accountId: string) => {
     setSelectedAccountId(accountId)
+    setQuery('')
     const firstProject = projects.find((project) => project.accountId === accountId)
     if (!firstProject) return
 
@@ -285,13 +566,18 @@ function App() {
 
   const handleSelectProject = (projectId: string) => {
     setSelectedProjectId(projectId)
+    setQuery('')
     const firstEvidence = evidence.find((item) => item.projectId === projectId)
     if (firstEvidence) setSelectedEvidenceId(firstEvidence.id)
   }
 
   return (
     <main className="desktop">
-      <section className="app-window" aria-label="Lensdesk prototype">
+      <section
+        className="app-window"
+        aria-label="Lensdesk prototype"
+        style={{ '--accent': selectedProject?.accent ?? selectedAccount.accent } as CSSProperties}
+      >
         <header className="titlebar">
           <div className="traffic-lights" aria-hidden="true">
             <span className="traffic red" />
@@ -434,43 +720,64 @@ function App() {
               </div>
             </div>
 
+            {selectedProject && (
+              <section className="project-brief" style={{ '--project-accent': selectedProject.accent } as CSSProperties}>
+                <div>
+                  <span className="brief-label">Research question</span>
+                  <p>{selectedProject.question}</p>
+                </div>
+                <div>
+                  <span className="brief-label">Working decision</span>
+                  <p>{selectedProject.decision}</p>
+                </div>
+              </section>
+            )}
+
             <div className="evidence-list">
-              {visibleEvidence.map((item) => (
-                <button
-                  className={`evidence-card ${item.id === selectedEvidence?.id ? 'selected' : ''}`}
-                  key={item.id}
-                  onClick={() => setSelectedEvidenceId(item.id)}
-                  type="button"
-                >
-                  <div className={`evidence-thumb ${item.type}`} style={item.image ? { background: item.image } : undefined}>
-                    {item.type === 'link' && <Link size={22} />}
-                    {item.type === 'quote' && <span>"</span>}
-                    {item.type === 'note' && <FileText size={21} />}
-                  </div>
-                  <div className="evidence-body">
-                    <div className="card-meta">
-                      <span>{item.source}</span>
-                      <span>{item.platform}</span>
+              {visibleEvidence.length > 0 ? (
+                visibleEvidence.map((item) => (
+                  <button
+                    className={`evidence-card ${item.id === selectedEvidence?.id ? 'selected' : ''}`}
+                    key={item.id}
+                    onClick={() => setSelectedEvidenceId(item.id)}
+                    type="button"
+                  >
+                    <div className={`evidence-thumb ${item.type}`} style={item.image ? { background: item.image } : undefined}>
+                      {item.type === 'link' && <Link size={22} />}
+                      {item.type === 'quote' && <span>"</span>}
+                      {item.type === 'note' && <FileText size={21} />}
                     </div>
-                    <h3>{item.title}</h3>
-                    <p>{item.excerpt}</p>
-                    <div className="card-footer">
-                      <span className="date">{item.date}</span>
-                      <div className="chips">
-                        {item.tags.map((tagName) => (
-                          <span className={`chip ${tagName.includes('labor') || tagName.includes('tensions') ? 'warn' : ''}`} key={tagName}>
-                            {tagName}
-                          </span>
-                        ))}
+                    <div className="evidence-body">
+                      <div className="card-meta">
+                        <span>{item.source}</span>
+                        <span>{item.platform}</span>
+                      </div>
+                      <h3>{item.title}</h3>
+                      <p>{item.excerpt}</p>
+                      <div className="card-footer">
+                        <span className="date">{item.date}</span>
+                        <div className="chips">
+                          {item.tags.map((tagName) => (
+                            <span className={`chip ${tagName.includes('labor') || tagName.includes('tensions') ? 'warn' : ''}`} key={tagName}>
+                              {tagName}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="card-actions">
-                    <Bookmark size={16} />
-                    <MoreHorizontal size={17} />
-                  </div>
-                </button>
-              ))}
+                    <div className="card-actions">
+                      <Bookmark size={16} />
+                      <MoreHorizontal size={17} />
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div className="empty-state">
+                  <Inbox size={22} />
+                  <h3>No matching evidence</h3>
+                  <p>Try another search or add a new clip to this project.</p>
+                </div>
+              )}
             </div>
 
             <form className="composer">
@@ -532,10 +839,13 @@ function App() {
                 <h2>Lens Read</h2>
               </div>
               <p>
-                For {selectedAccount.handle}, this project is less about tracking a trend and more
-                about deciding what this signal means for the account&apos;s audience, voice, and
-                next publishable idea.
+                For {selectedAccount.handle}, <b>{selectedProject?.name}</b> is asking:
+                {' '}{selectedProject?.question}
               </p>
+              <div className="next-move">
+                <span>Next move</span>
+                <p>{selectedProject?.nextMove}</p>
+              </div>
             </section>
 
             <section className="insight-card">
@@ -551,7 +861,7 @@ function App() {
 
               {activeTab !== 'memo' ? (
                 <div className="ranked-list">
-                  {tabContent[activeTab].map(([label, count]) => (
+                  {selectedInsights[activeTab].map(([label, count]) => (
                     <div className="ranked-row" key={label}>
                       <span>{label}</span>
                       <b>{count}</b>
@@ -560,7 +870,7 @@ function App() {
                 </div>
               ) : (
                 <div className="memo-list">
-                  {tabContent.memo.map(([label, value]) => (
+                  {selectedInsights.memo.map(([label, value]) => (
                     <div className="memo-row" key={label}>
                       <span>{label}</span>
                       <p>{value}</p>
